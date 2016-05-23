@@ -10,8 +10,8 @@ describe('typeaheadHighlight', function () {
     logSpy = spyOn($log, 'warn');
   }));
 
-  beforeEach(inject(function(typeaheadHighlightFilter) {
-    highlightFilter = typeaheadHighlightFilter;
+  beforeEach(inject(function(uibTypeaheadHighlightFilter) {
+    highlightFilter = uibTypeaheadHighlightFilter;
   }));
 
   it('should higlight a match', function() {

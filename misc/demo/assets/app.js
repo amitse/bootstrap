@@ -1,6 +1,8 @@
 /* global FastClick, smoothScroll */
 angular.module('ui.bootstrap.demo', ['ui.bootstrap', 'plunker', 'ngTouch', 'ngAnimate', 'ngSanitize'], function($httpProvider){
-  FastClick.attach(document.body);
+  if (!!window.FastClick) {
+    FastClick.attach(document.body);
+  }
   delete $httpProvider.defaults.headers.common['X-Requested-With'];
 }).run(['$location', function($location){
   //Allows us to navigate to the correct element on initialization
@@ -20,7 +22,7 @@ angular.module('ui.bootstrap.demo', ['ui.bootstrap', 'plunker', 'ngTouch', 'ngAn
     get: function () {
       return $q.all({
         moduleMap: getModuleMap(),
-        rawFiles: getRawFiles(),
+        rawFiles: getRawFiles()
       });
     }
   };
@@ -46,9 +48,15 @@ angular.module('ui.bootstrap.demo', ['ui.bootstrap', 'plunker', 'ngTouch', 'ngAn
 .controller('SelectModulesCtrl', SelectModulesCtrl)
 .controller('DownloadCtrl', DownloadCtrl);
 
-function MainCtrl($scope, $http, $document, $modal, orderByFilter) {
+function MainCtrl($scope, $http, $document, $uibModal, orderByFilter) {
+  // Grab old version docs
+  $http.get('/bootstrap/versions-mapping.json')
+    .then(function(result) {
+      $scope.oldDocs = result.data;
+    });
+
   $scope.showBuildModal = function() {
-    var modalInstance = $modal.open({
+    var modalInstance = $uibModal.open({
       templateUrl: 'buildModal.html',
       controller: 'SelectModulesCtrl',
       resolve: {
@@ -63,14 +71,14 @@ function MainCtrl($scope, $http, $document, $modal, orderByFilter) {
   };
 
   $scope.showDownloadModal = function() {
-    var modalInstance = $modal.open({
+    var modalInstance = $uibModal.open({
       templateUrl: 'downloadModal.html',
       controller: 'DownloadCtrl'
     });
   };
 }
 
-function SelectModulesCtrl($scope, $modalInstance, modules, buildFilesService) {
+function SelectModulesCtrl($scope, $uibModalInstance, modules, buildFilesService) {
   $scope.selectedModules = [];
   $scope.modules = modules;
 
@@ -83,11 +91,11 @@ function SelectModulesCtrl($scope, $modalInstance, modules, buildFilesService) {
   };
 
   $scope.downloadBuild = function () {
-    $modalInstance.close($scope.selectedModules);
+    $uibModalInstance.close($scope.selectedModules);
   };
 
   $scope.cancel = function () {
-    $modalInstance.dismiss();
+    $uibModalInstance.dismiss();
   };
 
   $scope.isOldBrowser = function () {
@@ -236,7 +244,7 @@ function SelectModulesCtrl($scope, $modalInstance, modules, buildFilesService) {
   };
 }
 
-function DownloadCtrl($scope, $modalInstance) {
+function DownloadCtrl($scope, $uibModalInstance) {
   $scope.options = {
     minified: true,
     tpls: true
@@ -259,7 +267,7 @@ function DownloadCtrl($scope, $modalInstance) {
   };
 
   $scope.cancel = function () {
-    $modalInstance.dismiss();
+    $uibModalInstance.dismiss();
   };
 }
 
@@ -285,7 +293,7 @@ var isOldBrowser;
      *   https://github.com/ssorallen/blob-feature-check/
      *   License: Public domain (http://unlicense.org)
      */
-    var url = window.webkitURL || window.URL; // Safari 6 uses "webkitURL".
+    var url = window.URL;
     var svg = new Blob(
         ['<svg xmlns=\'http://www.w3.org/2000/svg\'></svg>'],
         { type: 'image/svg+xml;charset=utf-8' }
